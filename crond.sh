@@ -23,3 +23,29 @@
 [ -f /etc/sysconfig/crond ] || {
     [ "$1" = "status" ] && exit 4 || exit 6
 }
+
+RETVAL=0
+prog="crond"
+exec=/usr/sbin/crond
+lockfile=/var/lock/subsys/crond
+config=/etc/sysconfig/crond
+
+[ $UID -eq 0 ] && [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+
+start() {
+    if [ $UID -ne 0 ] ; then
+        echo "User has insufficient privilege."
+        exit 4
+    fi
+    [ -x $exec ] || exit 5
+    [ -f $config ] || exit 6
+    echo -n $"Starting $prog: "
+    daemon $prog $CRONDARGS
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch $lockfile
+}
+
+stop() {
+    if [ $UID -ne 0 ]; then
+}
